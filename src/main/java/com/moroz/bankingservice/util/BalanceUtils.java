@@ -21,14 +21,14 @@ public class BalanceUtils {
     }
 
     public long getBalanceFromAmount(final BigDecimal amount) {
-        if (amount.toBigInteger().longValue() < 0) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount must be greater than zero");
         }
         return amount.toBigInteger().longValue();
     }
 
     public int getCentsFromAmount(final BigDecimal amount) {
-        if (amount.doubleValue() < 0) {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount must be greater than zero");
         }
         final int cents = amount
