@@ -4,14 +4,11 @@ import com.moroz.bankingservice.dto.AccountDto;
 import com.moroz.bankingservice.dto.request.CreateAccountRequest;
 import com.moroz.bankingservice.dto.response.TransactionResponse;
 import com.moroz.bankingservice.entity.Account;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 import java.math.BigDecimal;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface AccountMapper {
 
     AccountDto toDto(Account account);

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1" author="anton" runAlways="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM accounts
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO accounts (first_name, last_name, email, balance) VALUES
+             ('John', 'Doe', 'john.doe@example.com', 1000.00),
+             ('Jane', 'Smith', 'jane.smith@example.com', 250.50),
+             ('Alice', 'Johnson', 'alice.johnson@example.com', 0.00),
+             ('Bob', 'Brown', 'bob.brown@example.com', 75.25),
+             ('Charlie', 'Davis', 'charlie.davis@example.com', 500.00),
+             ('Emily', 'Clark', 'emily.clark@example.com', 120.99),
+             ('Frank', 'Moore', 'frank.moore@example.com', 80.00),
+             ('Grace', 'Lewis', 'grace.lewis@example.com', 1300.00),
+             ('Henry', 'Walker', 'henry.walker@example.com', 33.33),
+             ('Isabella', 'Hall', 'isabella.hall@example.com', 5.00),
+             ('Jack', 'Allen', 'jack.allen@example.com', 0.00),
+             ('Karen', 'Young', 'karen.young@example.com', 600.00),
+             ('Leo', 'Hernandez', 'leo.hernandez@example.com', 950.45),
+             ('Mia', 'King', 'mia.king@example.com', 15.75),
+             ('Noah', 'Wright', 'noah.wright@example.com', 300.00);
+        </sql>
+    </changeSet>
+</databaseChangeLog>
