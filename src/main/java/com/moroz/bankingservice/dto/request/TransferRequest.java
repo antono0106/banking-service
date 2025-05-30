@@ -7,7 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public record TransferRequest(
-        Long sourceAccountId, Long targetAccountId,
-        @DecimalMin(value = "0.01") @ValidMoneyAmount @NotNull BigDecimal amount
+        @NotNull(message = "Source account id must be not null") Long sourceAccountId,
+        @NotNull(message = "Target account id must be not null") Long targetAccountId,
+        @NotNull(message = "Amount must be not null")
+        @DecimalMin(value = "0.01", message = "Amount should be greater than 0.00")
+        @ValidMoneyAmount
+        BigDecimal amount
 ) {
 }

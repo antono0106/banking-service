@@ -18,13 +18,10 @@
             <column name="email" type="varchar(50)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="balance" type="BIGINT" defaultValue="0"/>
-            <column name="cents" type="smallint" defaultValue="0"/>
+            <column name="balance" type="decimal(19, 2)"/>
         </createTable>
-
-        <sql dbms="postgresql">
-            ALTER TABLE accounts ADD CONSTRAINT chk_balance_non_negative (balance &gt;= 0);
-            ALTER TABLE accounts ADD CONSTRAINT chk_cents_non_negative_and_not_gt_100 (cents &gt;= 0 AND cents &lt;= 99);
+        <sql>
+            ALTER TABLE accounts ADD CONSTRAINT chk_balance_non_negative CHECK (balance &gt;= 0.00);
         </sql>
     </changeSet>
 </databaseChangeLog>

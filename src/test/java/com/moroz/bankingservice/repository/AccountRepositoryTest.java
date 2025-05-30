@@ -5,25 +5,49 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@Testcontainers
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class AccountRepositoryTest {
+
+    @Container
+    private static final PostgreSQLContainer<?> CONTAINER = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("bank")
+            .withUsername("postgres")
+            .withPassword("postgres")
+            .withExposedPorts(5432);
 
     @Autowired
     private AccountRepository accountRepository;
 
     private Account account;
+
+    @DynamicPropertySource
+    static void initProps(final DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", CONTAINER::getUsername);
+        registry.add("spring.datasource.password", CONTAINER::getPassword);
+        registry.add("spring.liquibase.enabled", () -> true);
+        registry.add("spring.liquibase.change-log", () -> "classpath:/db/changelog/db.changelog-master.xml");
+    }
 
     @BeforeEach
     void initAccountAndSave() {
@@ -32,7 +56,6 @@ public class AccountRepositoryTest {
         account.setLastName("Doe");
         account.setEmail("john@doe.com");
         account.setBalance(1000);
-        account.setCents(0);
         accountRepository.save(account);
     }
 
@@ -48,7 +71,6 @@ public class AccountRepositoryTest {
         newAccount.setLastName("Doe");
         newAccount.setEmail("john2@doe.com");
         newAccount.setBalance(1050);
-        newAccount.setCents(50);
         final Account savedAccount = accountRepository.save(newAccount);
 
         assertNotNull(savedAccount);
@@ -66,8 +88,7 @@ public class AccountRepositoryTest {
 
         assertNotNull(savedAccount);
         assertEquals(2, accountRepository.count());
-        assertEquals(0, newAccount.getBalance());
-        assertEquals(0, newAccount.getCents());
+        assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), newAccount.getBalance());
     }
 
     @Test
@@ -90,7 +111,7 @@ public class AccountRepositoryTest {
         assertEquals(nameToUpdate, savedAccount.getFirstName());
         assertEquals(lastNameToUpdate, savedAccount.getLastName());
         assertEquals(emailToUpdate, savedAccount.getEmail());
-        assertEquals(10, savedAccount.getBalance());
+        assertEquals(BigDecimal.valueOf(10).setScale(2, RoundingMode.HALF_UP), savedAccount.getBalance());
         assertEquals(1, accountRepository.count());
     }
 
@@ -108,16 +129,32 @@ public class AccountRepositoryTest {
         assertNotNull(accountRepository.findAll().stream().findFirst().get().getEmail());
     }
 
-    /*@Test
-    void shouldNotUpdatedWithNegativeBalance() {
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void shouldNotUpdateWithNegativeBalance() {
         final List<Account> accounts = accountRepository.findAll();
         assertEquals(1, accounts.size());
 
         final Account account = accounts.stream().findFirst().get();
-        // H2 doesn't support check constraints, so balance setters explicitly check if balance is in correct range
-        assertThrows(IllegalArgumentException.class, () -> account.setBalance(-1));
-        assertThrows(IllegalArgumentException.class, () -> account.setCents(-1));
-    }*/
+        account.setBalance(-1);
+
+        assertThrows(DataIntegrityViolationException.class, () -> accountRepository.save(account));
+        assertEquals(1, accountRepository.count());
+        assertEquals(
+                BigDecimal.valueOf(1000).setScale(2, RoundingMode.HALF_UP),
+                accountRepository.findAll().stream().findFirst().get().getBalance()
+        );
+    }
+
+    @Test
+    void shouldFindById() {
+        assertEquals(Optional.of(account), accountRepository.findById(account.getId()));
+    }
+
+    @Test
+    void shouldNotExistsById() {
+        assertEquals(Optional.empty(), accountRepository.findById(1L));
+    }
 
     @Test
     void shouldExistByEmail() {
