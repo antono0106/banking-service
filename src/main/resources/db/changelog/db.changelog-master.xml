@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <includeAll relativeToChangelogFile="true" path="/changes"/>
+    <include file="changes/1_init_table.xml" relativeToChangelogFile="true"/>
     <changeSet id="0" author="anton">
         <createTable ifNotExists="true" tableName="accounts">
             <column name="id" type="BIGINT" autoIncrement="true" startWith="1000100" incrementBy="1">

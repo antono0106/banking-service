@@ -11,6 +11,7 @@ import com.moroz.bankingservice.service.AccountManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -31,7 +32,7 @@ public class AccountManagementServiceImpl extends AbstractAccountService impleme
     @Override
     public Page<AccountDto> getAllAccounts(final int page, final int size) {
         log.info("Retrieving all accounts, page {}, size {}", page, size);
-        final PageRequest pageRequest = PageRequest.of(page, size);
+        final PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "id");
         final List<AccountDto> accounts = accountRepository.findAll(pageRequest)
                 .stream()
                 .map(accountMapper::toDto)

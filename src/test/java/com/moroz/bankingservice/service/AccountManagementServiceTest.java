@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -117,7 +118,7 @@ public class AccountManagementServiceTest {
                 2L, "John", "Smith", "john@smith.com", BigDecimal.valueOf(567.89)
         );
 
-        given(accountRepository.findAll(PageRequest.of(0, 10)))
+        given(accountRepository.findAll(PageRequest.of(0, 10, Sort.Direction.ASC, "id")))
                 .willReturn(new PageImpl<>(List.of(account, additionalAccount)));
 
         final AccountDto firstDto = new AccountDto(
@@ -135,7 +136,7 @@ public class AccountManagementServiceTest {
         assertNotNull(response);
         assertEquals(2, response.getNumberOfElements());
 
-        verify(accountRepository, times(1)).findAll(PageRequest.of(0, 10));
+        verify(accountRepository, times(1)).findAll(any(PageRequest.class));
         verify(accountRepository, times(1)).count();
         verify(accountMapper, times(2)).toDto(any(Account.class));
     }
