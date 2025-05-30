@@ -46,7 +46,7 @@ public class AccountRepositoryTest {
         registry.add("spring.datasource.username", CONTAINER::getUsername);
         registry.add("spring.datasource.password", CONTAINER::getPassword);
         registry.add("spring.liquibase.enabled", () -> true);
-        registry.add("spring.liquibase.change-log", () -> "classpath:/db/changelog/db.changelog-master.xml");
+        registry.add("spring.liquibase.change-log", () -> "classpath:/db/changelog/db.changelog-master-test.xml");
     }
 
     @BeforeEach

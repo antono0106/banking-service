@@ -1,9 +1,27 @@
 services:
   postgres:
+    container_name: postgres
     image: 'postgres:latest'
+    restart: on-failure
     environment:
-      - 'POSTGRES_DB=bank'
-      - 'POSTGRES_PASSWORD=postgres'
-      - 'POSTGRES_USER=postgres'
+      POSTGRES_DB: bank
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  banking-service:
+    container_name: banking-service
+    restart: on-failure
+    ports:
+      - '8080:8080'
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bank
+    build: .
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
