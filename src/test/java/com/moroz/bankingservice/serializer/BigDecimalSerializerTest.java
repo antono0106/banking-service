@@ -2,7 +2,6 @@ package com.moroz.bankingservice.serializer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ public class BigDecimalSerializerTest {
         MAPPER.registerModule(module);
     }
 
-    record TestDTO(@JsonSerialize(using = BigDecimalSerializer.class) BigDecimal amount) {}
+    record TestDTO(BigDecimal amount) {}
 
     @Test
     void shouldBeZeroWith2DecimalPlaces() throws JsonProcessingException {

@@ -18,15 +18,11 @@ public class AccountMapperTest {
 
     private static final AccountMapper MAPPER = Mappers.getMapper(AccountMapper.class);
 
-    private final Account account = new Account();
+    private Account account;
 
     @BeforeEach
     void initAccount() {
-        account.setId(1L);
-        account.setFirstName("John");
-        account.setLastName("Doe");
-        account.setEmail("john@doe.com");
-        account.setBalance(100);
+        account = new Account(1L, "John", "Doe", "john@doe.com", 100);
     }
 
     @Test

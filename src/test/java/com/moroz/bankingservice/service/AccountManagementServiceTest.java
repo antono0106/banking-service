@@ -41,12 +41,7 @@ public class AccountManagementServiceTest {
 
     @BeforeEach
     void initAccount() {
-        account = new Account();
-        account.setId(1L);
-        account.setFirstName("John");
-        account.setLastName("Doe");
-        account.setEmail("john@doe.com");
-        account.setBalance(123);
+        account = new Account(1L, "John", "Doe", "john@doe.com", 123);
     }
 
     @Test
@@ -118,12 +113,9 @@ public class AccountManagementServiceTest {
 
     @Test
     void shouldReturnListOfAccounts() {
-        final Account additionalAccount = new Account();
-        additionalAccount.setId(2L);
-        additionalAccount.setFirstName("John");
-        additionalAccount.setLastName("Smith");
-        additionalAccount.setEmail("john@smith.com");
-        additionalAccount.setBalance(BigDecimal.valueOf(567.89));
+        final Account additionalAccount = new Account(
+                2L, "John", "Smith", "john@smith.com", BigDecimal.valueOf(567.89)
+        );
 
         given(accountRepository.findAll(PageRequest.of(0, 10)))
                 .willReturn(new PageImpl<>(List.of(account, additionalAccount)));

@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,17 +42,19 @@ public class AccountTransactionsControllerTest {
     @Test
     void shouldDeposit() throws Exception {
         final BigDecimal initAmount = BigDecimal.valueOf(100);
-        final TransactionRequest request = new TransactionRequest(BigDecimal.valueOf(123));
+        final TransactionRequest request = new TransactionRequest(BigDecimal.valueOf(123.50));
         final TransactionResponse response = new TransactionResponse(1L, initAmount.add(request.amount()));
 
-        when(accountTransactionsService.deposit(1L, request)).thenReturn(response);
+        when(accountTransactionsService.deposit(1, request)).thenReturn(response);
 
         mockMvc.perform(
-                patch("/v0/accounts/transactions/deposit/{id}", 1L)
+                patch("/v0/accounts/transactions/deposit/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request)))
+                        .content(new ObjectMapper().writeValueAsString(request))) //used manual to write request as is
             .andExpect(status().isOk())
             .andExpect(content().json(mapper.writeValueAsString(response)));
+
+        verify(accountTransactionsService, times(1)).deposit(anyLong(), any(TransactionRequest.class));
     }
 
     @Test
@@ -66,7 +68,7 @@ public class AccountTransactionsControllerTest {
         mockMvc.perform(
                         patch("/v0/accounts/transactions/withdraw/{id}", 1L)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(request)))
+                                .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(response)));
     }
@@ -88,7 +90,7 @@ public class AccountTransactionsControllerTest {
         mockMvc.perform(
                         patch("/v0/accounts/transactions/transfer")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(mapper.writeValueAsString(request)))
+                                .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(response)));
     }
