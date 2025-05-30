@@ -1,6 +1,7 @@
 package com.moroz.bankingservice.service.impl;
 
 import com.moroz.bankingservice.dto.AccountDto;
+import com.moroz.bankingservice.dto.AccountPageImpl;
 import com.moroz.bankingservice.dto.request.CreateAccountRequest;
 import com.moroz.bankingservice.entity.Account;
 import com.moroz.bankingservice.mapper.AccountMapper;
@@ -9,7 +10,6 @@ import com.moroz.bankingservice.service.AbstractAccountService;
 import com.moroz.bankingservice.service.AccountManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class AccountManagementServiceImpl extends AbstractAccountService impleme
                 .map(accountMapper::toDto)
                 .toList();
         log.info("Retrieved {} accounts", accounts.size());
-        return new PageImpl<>(accounts, pageRequest, accountRepository.count());
+        return new AccountPageImpl<>(accounts, pageRequest, accountRepository.count());
     }
 
     @Override

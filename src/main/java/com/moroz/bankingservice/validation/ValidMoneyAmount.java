@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidMoneyAmount {
-    String message() default "Value must be integer or float with 1 or 2 decimal places";
+    String message() default "Value must be integer or float within 0 or 2 decimal places";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
