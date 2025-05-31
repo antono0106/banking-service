@@ -9,8 +9,6 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - '5432:5432'
-    #volumes:
-    #  - pgdata:/var/lib/postgresql/data
 
   banking-service:
     container_name: banking-service
@@ -22,6 +20,3 @@ services:
     build: .
     depends_on:
       - postgres
-
-#volumes:
-#  pgdata:
