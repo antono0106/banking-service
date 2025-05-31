@@ -59,7 +59,7 @@ public class AccountManagementServiceImpl extends AbstractAccountService impleme
     public AccountDto getAccountById(final long id) {
         final Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Account with id %s not found".formatted(id))
+                        HttpStatus.NOT_FOUND, "Account with id %d doesn't exist".formatted(id))
                 );
         return accountMapper.toDto(account);
     }
