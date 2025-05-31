@@ -1,0 +1,326 @@
+
+openapi: 3.0.1
+info:
+  title: Banking Service API
+  description: RESTful API for managing accounts and transactions
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080
+paths:
+  /v0/accounts/management:
+    post:
+      summary: Create new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidFieldsResponse'
+        '409':
+          description: Account with given email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+
+    get:
+      summary: Get list of accounts
+      parameters:
+        - name: page
+          in: query
+          example: 1
+          schema:
+            type: integer
+        - name: size
+          in: query
+          example: 10
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountPageImpl'
+
+  /v0/accounts/management/{id}:
+    get:
+      summary: Get account by id
+      parameters:
+        - in: path
+          name: id
+          example: 1000100
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Retrieved account by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDto'
+        '404':
+          description: Account with given id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+
+  /v0/accounts/transactions/deposit/{id}:
+    patch:
+      summary: Deposit funds to account
+      parameters:
+        - in: path
+          name: id
+          example: 1000100
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Deposit successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Invalid fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidFieldsResponse'
+        '404':
+          description: Account with given id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+
+  /v0/accounts/transactions/withdraw/{id}:
+    patch:
+      summary: Withdraw funds from account
+      parameters:
+        - in: path
+          name: id
+          example: 1000100
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Withdrawal successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Insufficient balance or invalid fields
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                  - $ref: '#/components/schemas/InvalidFieldsResponse'
+        '404':
+          description: Account with given id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+
+  /v0/accounts/transactions/transfer:
+    patch:
+      summary: Transfer funds between accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: Transfer successful
+        '400':
+          description: Insufficient balance or invalid fields
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                  - $ref: '#/components/schemas/InvalidFieldsResponse'
+        '404':
+          description: Account with given id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+
+components:
+  schemas:
+    AccountDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1000100
+        first_name:
+          type: string
+          example: 'John'
+        last_name:
+          type: string
+          example: 'Doe'
+        email:
+          type: string
+          example: 'john@doe.com'
+        balance:
+          type: number
+          format: double
+          example: 50.00
+
+    AccountPageImpl:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDto'
+        size:
+          type: integer
+          example: 10
+        totalElements:
+          type: integer
+          example: 15
+        number:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 2
+        numberOfElements:
+          type: integer
+          example: 10
+
+    CreateAccountRequest:
+      type: object
+      required: [first_name, last_name, email]
+      properties:
+        first_name:
+          type: string
+          example: 'John'
+        last_name:
+          type: string
+          example: 'Doe'
+        email:
+          type: string
+          example: 'john@doe.com'
+        init_balance:
+          type: number
+          example: 50
+
+    TransactionRequest:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+          example: 50.00
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1000100
+        current_balance:
+          type: number
+          format: double
+          example: 50.00
+
+    TransferRequest:
+      type: object
+      required: [source_account_id, target_account_id, amount]
+      properties:
+        source_account_id:
+          type: integer
+          example: 1000100
+        target_account_id:
+          type: integer
+          example: 1000101
+        amount:
+          type: number
+          format: double
+          example: 50.00
+
+    TransferResponse:
+      type: object
+      properties:
+        source_account:
+          $ref: '#/components/schemas/TransactionResponse'
+        target_account:
+          $ref: '#/components/schemas/TransactionResponse'
+
+    ResponseStatusExceptionResponse:
+      type: object
+      properties:
+          timestamp:
+            type: number
+            example: 1748644942556
+          status:
+            type: integer
+            example: 404
+          error:
+            type: string
+            example: 'Not Found'
+          message:
+            type: string
+            example: "Account with id 1000100 doesn't exist"
+          path:
+            type: string
+            example: '/vo/accounts/management/1000100'
+
+    InvalidFieldsResponse:
+      type: object
+      properties:
+        timestamp:
+          type: number
+          example: 1748644942556
+        status:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: 'Invalid field'
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            email: "Invalid email"
+            firstName: "First name must be not null or blank"
