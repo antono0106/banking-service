@@ -108,7 +108,7 @@ Run:
 ./mvnw clean test
 ```
 
-- Unit & integration tests with coverage
+- Unit tests with coverage
 - Testcontainers for isolated PostgreSQL testing
 
 Test coverage report will be available at `target/site/index.html`.
