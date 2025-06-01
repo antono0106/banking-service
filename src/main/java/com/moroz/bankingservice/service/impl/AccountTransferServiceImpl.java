@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
+@Transactional(isolation = Isolation.SERIALIZABLE)
 public class AccountTransferServiceImpl implements AccountTransferService {
     private final AccountTransactionsService accountTransactionsService;
 
@@ -34,6 +34,7 @@ public class AccountTransferServiceImpl implements AccountTransferService {
                 .deposit(transferRequest.targetAccountId(), transactionRequest);
         log.info("Transferring amount {} between account with id {} and account with id {} completed",
                 amount, withdrawResponse.id(), depositResponse.id());
+
         return new TransferResponse(withdrawResponse, depositResponse);
     }
 }

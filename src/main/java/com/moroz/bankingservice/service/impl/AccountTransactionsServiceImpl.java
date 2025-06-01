@@ -3,6 +3,8 @@ package com.moroz.bankingservice.service.impl;
 import com.moroz.bankingservice.dto.request.TransactionRequest;
 import com.moroz.bankingservice.dto.response.TransactionResponse;
 import com.moroz.bankingservice.entity.Account;
+import com.moroz.bankingservice.exception.AccountNotFoundException;
+import com.moroz.bankingservice.exception.BadRequestException;
 import com.moroz.bankingservice.mapper.AccountMapper;
 import com.moroz.bankingservice.repository.AccountRepository;
 import com.moroz.bankingservice.service.AbstractAccountService;
@@ -11,12 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Slf4j
 @Service
@@ -32,9 +30,8 @@ public class AccountTransactionsServiceImpl extends AbstractAccountService imple
     @Override
     public TransactionResponse deposit(final long id, final TransactionRequest request) {
         final Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        NOT_FOUND, "Account with id %d doesn't exist".formatted(id))
-                );
+                .orElseThrow(() -> new AccountNotFoundException(id));
+
         final BigDecimal amountToDeposit = request.amount();
         log.info("Depositing {} to account with id {}", amountToDeposit, id);
         final BigDecimal depositResult = account.getBalance().add(request.amount());
@@ -47,13 +44,11 @@ public class AccountTransactionsServiceImpl extends AbstractAccountService imple
     @Override
     public TransactionResponse withdraw(final long id, final TransactionRequest request) {
         final Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        NOT_FOUND, "Account with id %d doesn't exist".formatted(id))
-                );
+                .orElseThrow(() -> new AccountNotFoundException(id));
 
         final BigDecimal amountToWithdraw = request.amount();
         if (amountToWithdraw.compareTo(account.getBalance()) > 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "Insufficient balance for account with id %d".formatted(id));
+            throw new BadRequestException("Insufficient balance for account with id %d".formatted(id));
         }
 
         log.info("Withdrawing {} from account with id {}...", amountToWithdraw, id);

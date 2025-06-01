@@ -3,6 +3,7 @@ package com.moroz.bankingservice.service;
 import com.moroz.bankingservice.dto.request.TransactionRequest;
 import com.moroz.bankingservice.dto.response.TransactionResponse;
 import com.moroz.bankingservice.entity.Account;
+import com.moroz.bankingservice.exception.BadRequestException;
 import com.moroz.bankingservice.mapper.AccountMapper;
 import com.moroz.bankingservice.repository.AccountRepository;
 import com.moroz.bankingservice.service.impl.AccountTransactionsServiceImpl;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -111,7 +111,7 @@ public class AccountTransactionsServiceTest {
 
         final TransactionRequest request = new TransactionRequest(BigDecimal.valueOf(567));
 
-        assertThrows(ResponseStatusException.class, () -> accountManagementService.withdraw(account.getId(), request));
+        assertThrows(BadRequestException.class, () -> accountManagementService.withdraw(account.getId(), request));
 
         verify(accountRepository, times(1)).findById(1L);
         verifyNoMoreInteractions(accountRepository);

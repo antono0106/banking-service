@@ -34,7 +34,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
 
     get:
       summary: Get list of accounts
@@ -79,7 +79,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
 
   /v0/accounts/transactions/deposit/{id}:
     patch:
@@ -115,7 +115,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
 
   /v0/accounts/transactions/withdraw/{id}:
     patch:
@@ -146,14 +146,14 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                  - $ref: '#/components/schemas/ApiErrorResponse'
                   - $ref: '#/components/schemas/InvalidFieldsResponse'
         '404':
           description: Account with given id doesn't exist
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
 
   /v0/accounts/transactions/transfer:
     patch:
@@ -173,14 +173,14 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                  - $ref: '#/components/schemas/ApiErrorResponse'
                   - $ref: '#/components/schemas/InvalidFieldsResponse'
         '404':
           description: Account with given id doesn't exist
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseStatusExceptionResponse'
+                $ref: '#/components/schemas/ApiErrorResponse'
 
 components:
   schemas:
@@ -286,7 +286,7 @@ components:
         target_account:
           $ref: '#/components/schemas/TransactionResponse'
 
-    ResponseStatusExceptionResponse:
+    ApiErrorResponse:
       type: object
       properties:
           timestamp:
@@ -300,10 +300,7 @@ components:
             example: 'Not Found'
           message:
             type: string
-            example: "Account with id 1000100 doesn't exist"
-          path:
-            type: string
-            example: '/vo/accounts/management/1000100'
+            example: "Account with id 1000100 not found"
 
     InvalidFieldsResponse:
       type: object

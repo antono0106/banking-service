@@ -6,6 +6,7 @@ import com.moroz.bankingservice.dto.request.TransactionRequest;
 import com.moroz.bankingservice.dto.request.TransferRequest;
 import com.moroz.bankingservice.dto.response.TransactionResponse;
 import com.moroz.bankingservice.dto.response.TransferResponse;
+import com.moroz.bankingservice.exception.BadRequestException;
 import com.moroz.bankingservice.service.AccountTransactionsService;
 import com.moroz.bankingservice.service.AccountTransferService;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -71,6 +74,29 @@ public class AccountTransactionsControllerTest {
                                 .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(response)));
+
+        verify(accountTransactionsService, times(1)).withdraw(1L, request);
+    }
+
+    @Test
+    void shouldFailBecauseOfInsufficientBalance() throws Exception {
+        final TransactionRequest request = new TransactionRequest(BigDecimal.valueOf(150));
+
+        when(accountTransactionsService.withdraw(1L, request))
+                .thenThrow(new BadRequestException("Insufficient balance for account with id %d".formatted(1L)));
+
+        mockMvc.perform(
+                        patch("/v0/accounts/transactions/withdraw/{id}", 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertInstanceOf(BadRequestException.class, result.getResolvedException()))
+                .andExpect(
+                        result -> assertTrue(
+                                result.getResolvedException().getMessage()
+                                        .contains("Insufficient balance for account with id %d".formatted(1L))));
+
+        verify(accountTransactionsService, times(1)).withdraw(1L, request);
     }
 
     @Test
@@ -93,5 +119,30 @@ public class AccountTransactionsControllerTest {
                                 .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(response)));
+
+        verify(accountTransferService, times(1)).transfer(request);
+    }
+
+    @Test
+    void shouldFailTransferBecauseOfInsufficientBalance() throws Exception {
+
+        final BigDecimal amount = BigDecimal.valueOf(101.50);
+        final TransferRequest request = new TransferRequest(1L, 2L, amount);
+
+        when(accountTransferService.transfer(request))
+                .thenThrow(new BadRequestException("Insufficient balance for account with id %d".formatted(1L)));
+
+        mockMvc.perform(
+                        patch("/v0/accounts/transactions/transfer")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertInstanceOf(BadRequestException.class, result.getResolvedException()))
+                .andExpect(
+                        result -> assertTrue(
+                                result.getResolvedException().getMessage()
+                                        .contains("Insufficient balance for account with id %d".formatted(1L))));
+
+        verify(accountTransferService, times(1)).transfer(request);
     }
 }
