@@ -5,6 +5,7 @@ import com.moroz.bankingservice.dto.response.InvalidFieldsResponse;
 import com.moroz.bankingservice.exception.AccountAlreadyExistsException;
 import com.moroz.bankingservice.exception.AccountNotFoundException;
 import com.moroz.bankingservice.exception.BadRequestException;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
+@Hidden
 @RestControllerAdvice
 public class AccountsExceptionHandler {
 
