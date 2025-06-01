@@ -4,6 +4,7 @@ import com.moroz.bankingservice.dto.request.TransferRequest;
 import com.moroz.bankingservice.dto.response.TransactionResponse;
 import com.moroz.bankingservice.dto.response.TransferResponse;
 import com.moroz.bankingservice.entity.Account;
+import com.moroz.bankingservice.exception.BadRequestException;
 import com.moroz.bankingservice.mapper.AccountMapper;
 import com.moroz.bankingservice.repository.AccountRepository;
 import com.moroz.bankingservice.service.impl.AccountTransactionsServiceImpl;
@@ -15,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -100,7 +100,7 @@ public class AccountTransferServiceTest {
 
         given(accountRepository.findById(1L)).willReturn(Optional.of(accountA));
 
-        assertThrows(ResponseStatusException.class, () -> accountTransferService.transfer(request));
+        assertThrows(BadRequestException.class, () -> accountTransferService.transfer(request));
 
         verify(accountRepository, times(1)).findById(1L);
         verifyNoMoreInteractions(accountRepository);

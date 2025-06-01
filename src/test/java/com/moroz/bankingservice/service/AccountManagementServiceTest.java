@@ -3,6 +3,8 @@ package com.moroz.bankingservice.service;
 import com.moroz.bankingservice.dto.AccountDto;
 import com.moroz.bankingservice.dto.request.CreateAccountRequest;
 import com.moroz.bankingservice.entity.Account;
+import com.moroz.bankingservice.exception.AccountAlreadyExistsException;
+import com.moroz.bankingservice.exception.AccountNotFoundException;
 import com.moroz.bankingservice.mapper.AccountMapper;
 import com.moroz.bankingservice.repository.AccountRepository;
 import com.moroz.bankingservice.service.impl.AccountManagementServiceImpl;
@@ -16,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -76,7 +77,7 @@ public class AccountManagementServiceTest {
         );
 
         given(accountRepository.existsByEmail(account.getEmail())).willReturn(true);
-        assertThrows(ResponseStatusException.class, () -> accountManagementService.createAccount(createAccountRequest));
+        assertThrows(AccountAlreadyExistsException.class, () -> accountManagementService.createAccount(createAccountRequest));
 
         verify(accountRepository, times(1)).existsByEmail(account.getEmail());
         verify(accountRepository, never()).save(account);
@@ -106,7 +107,7 @@ public class AccountManagementServiceTest {
     void shouldNotReturnAccountById() {
         given(accountRepository.findById(2L)).willReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> accountManagementService.getAccountById(2L));
+        assertThrows(AccountNotFoundException.class, () -> accountManagementService.getAccountById(2L));
 
         verify(accountRepository, times(1)).findById(2L);
         verifyNoMoreInteractions(accountMapper);

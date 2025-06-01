@@ -4,6 +4,8 @@ import com.moroz.bankingservice.dto.AccountDto;
 import com.moroz.bankingservice.dto.AccountPageImpl;
 import com.moroz.bankingservice.dto.request.CreateAccountRequest;
 import com.moroz.bankingservice.entity.Account;
+import com.moroz.bankingservice.exception.AccountAlreadyExistsException;
+import com.moroz.bankingservice.exception.AccountNotFoundException;
 import com.moroz.bankingservice.mapper.AccountMapper;
 import com.moroz.bankingservice.repository.AccountRepository;
 import com.moroz.bankingservice.service.AbstractAccountService;
@@ -12,11 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -49,18 +49,14 @@ public class AccountManagementServiceImpl extends AbstractAccountService impleme
             final Account savedAccount = accountRepository.save(account);
             return accountMapper.toDto(savedAccount);
         } else {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Account with email %s already exists".formatted(request.email())
-            );
+            throw new AccountAlreadyExistsException(request.email());
         }
     }
 
     @Override
     public AccountDto getAccountById(final long id) {
         final Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Account with id %d doesn't exist".formatted(id))
-                );
+                .orElseThrow(() -> new AccountNotFoundException(id));
         return accountMapper.toDto(account);
     }
 }

@@ -5,6 +5,8 @@ import com.moroz.bankingservice.config.JacksonConfig;
 import com.moroz.bankingservice.dto.AccountDto;
 import com.moroz.bankingservice.dto.AccountPageImpl;
 import com.moroz.bankingservice.dto.request.CreateAccountRequest;
+import com.moroz.bankingservice.exception.AccountAlreadyExistsException;
+import com.moroz.bankingservice.exception.AccountNotFoundException;
 import com.moroz.bankingservice.service.AccountManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,8 +25,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -76,6 +75,8 @@ public class AccountManagementControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(response)))
                 .andExpect(jsonPath("$.totalElements").value(2));
+
+        verify(accountManagementService, times(1)).getAllAccounts(0, 10);
     }
 
     @Test
@@ -92,6 +93,8 @@ public class AccountManagementControllerTest {
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(mapper.writeValueAsString(account)));
+
+        verify(accountManagementService, times(1)).createAccount(request);
     }
 
     @Test
@@ -112,16 +115,14 @@ public class AccountManagementControllerTest {
 
         when(accountManagementService.createAccount(request))
                 .thenThrow(
-                        new ResponseStatusException(
-                                CONFLICT, "Account with email %s already exists".formatted(request.email())
-                        ));
+                        new AccountAlreadyExistsException(request.email()));
 
         mockMvc.perform(
                         post("/v0/accounts/management")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request)))
-                .andExpect(status().is4xxClientError())
-                .andExpect(result -> assertInstanceOf(ResponseStatusException.class, result.getResolvedException()))
+                .andExpect(status().isConflict())
+                .andExpect(result -> assertInstanceOf(AccountAlreadyExistsException.class, result.getResolvedException()))
                 .andExpect(
                         result -> assertTrue(
                                 result.getResolvedException().getMessage()
@@ -138,17 +139,22 @@ public class AccountManagementControllerTest {
         mockMvc.perform(get("/v0/accounts/management/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().json(mapper.writeValueAsString(account)));
+
+        verify(accountManagementService, times(1)).getAccountById(1L);
     }
 
     @Test
     void shouldReturn404WhenGettingById() throws Exception {
         when(accountManagementService.getAccountById(2L))
-                .thenThrow(new ResponseStatusException(NOT_FOUND, "Account with id %s not found".formatted(2L)));
+                .thenThrow(new AccountNotFoundException(2L));
 
         mockMvc.perform(get("/v0/accounts/management/{id}", 2L))
                 .andExpect(status().isNotFound())
-                .andExpect(result -> assertInstanceOf(ResponseStatusException.class, result.getResolvedException()))
+                .andExpect(result -> assertInstanceOf(AccountNotFoundException.class, result.getResolvedException()))
                 .andExpect(
-                        result -> assertTrue(result.getResolvedException().getMessage().contains("Account with id 2 not found")));
+                        result ->
+                                assertTrue(result.getResolvedException().getMessage().contains("Account with id 2 not found")));
+
+        verify(accountManagementService, times(1)).getAccountById(2L);
     }
 }
