@@ -16,7 +16,6 @@ A simple Spring Boot application that provides RESTful APIs for basic banking op
 - Testcontainers
 - JUnit 5 & Mockito
 - JaCoCo
-- Jakarta Bean Validation
 
 ---
 
