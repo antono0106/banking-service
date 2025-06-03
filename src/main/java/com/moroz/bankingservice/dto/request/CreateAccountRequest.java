@@ -21,7 +21,7 @@ public record CreateAccountRequest(
         String email,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         @JsonProperty("init_balance")
-        @DecimalMin(value = "0.00", message = "Balance should be greater than 0")
+        @DecimalMin(value = "0.00", message = "Balance should be greater than or equal to 0.00")
         @ValidMoneyAmount
         BigDecimal initBalance
 ) {

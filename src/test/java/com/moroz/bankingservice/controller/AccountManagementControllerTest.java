@@ -126,7 +126,7 @@ public class AccountManagementControllerTest {
                 .andExpect(
                         result -> assertTrue(
                                 result.getResolvedException().getMessage()
-                                        .contains("Account with email %s already exists".formatted(request.email()))));
+                                        .equals("Account with email %s already exists".formatted(request.email()))));
 
         verify(accountManagementService, times(2)).createAccount(request);
     }

@@ -4,6 +4,7 @@ import com.moroz.bankingservice.dto.AccountDto;
 import com.moroz.bankingservice.dto.request.CreateAccountRequest;
 import com.moroz.bankingservice.service.AccountManagementService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,8 @@ public class AccountManagementController {
 
     @GetMapping
     public Page<AccountDto> getAccounts(
-            @RequestParam(defaultValue = "0") final int page,
-            @RequestParam(defaultValue = "10") final int size
+            @RequestParam(defaultValue = "0") @Valid @Min(0) final int page,
+            @RequestParam(defaultValue = "10") @Valid @Min(10) final int size
     ) {
         return accountManagementService.getAllAccounts(page, size);
     }

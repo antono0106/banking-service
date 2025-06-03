@@ -37,7 +37,7 @@ public class ValidationTest {
 
         final Set<ConstraintViolation<CreateAccountRequest>> constraintViolations = validator.validate(request);
         assertFalse(constraintViolations.isEmpty());
-        assertEquals("Balance should be greater than 0", constraintViolations.stream().findFirst().get().getMessage());
+        assertEquals("Balance should be greater than or equal to 0.00", constraintViolations.stream().findFirst().get().getMessage());
     }
 
     @Test
