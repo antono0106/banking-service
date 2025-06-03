@@ -36,7 +36,7 @@ public class AccountsExceptionHandler {
 
     @ResponseStatus(CONFLICT)
     @ExceptionHandler(AccountAlreadyExistsException.class)
-    public ApiErrorResponse handleAccountAlreadyExistsException(final BadRequestException ex) {
+    public ApiErrorResponse handleAccountAlreadyExistsException(final AccountAlreadyExistsException ex) {
         return new ApiErrorResponse(Instant.now().toEpochMilli(), 409, "Conflict", ex.getMessage());
     }
 

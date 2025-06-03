@@ -33,13 +33,13 @@ public class Account {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.balance = balance;
+        this.balance = balance.setScale(2, RoundingMode.HALF_UP);
     }
 
     public Account(
             final Long id, final String firstName, final String lastName, final String email, final long balance
     ) {
-        this(id, firstName, lastName, email, BigDecimal.valueOf(balance).setScale(2, RoundingMode.HALF_UP));
+        this(id, firstName, lastName, email, BigDecimal.valueOf(balance));
     }
 
     public void setBalance(final BigDecimal balance) {

@@ -13,7 +13,7 @@ public interface AccountMapper {
 
     AccountDto toDto(Account account);
 
-    @Mapping(target = "balance", source = "request.initBalance")
+    @Mapping(target = "balance", source = "initBalance")
     Account fromRequest(CreateAccountRequest request);
 
     @Mapping(target = "balance", source = "amount")
